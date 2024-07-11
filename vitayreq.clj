@@ -8,10 +8,9 @@
 :required true
 )
 
-(password-field 
+(hidden-field 
 :name "password"
-:label "Password"
-:placeholder "password"
+:placeholder ""
 )
 
 (text-field 
@@ -76,7 +75,9 @@ options)
 (fields 
 id :id
 name
-)
+)  
+(relate
+(needs ORGANIZATION :prop "id"))       ; missing needs
 )
 
 (entity KEY_ROLE_ORG
@@ -119,7 +120,7 @@ account_executive_id:<="accountExecutiveId"
 (dynamic-fields
 (flatten-fields
 (fields 
-id :id
+id :id     ; remove this
 created_at:<="createdAt"
 label
 path
@@ -179,8 +180,8 @@ type
 options)
 :from "traits" ))
 (relate
-(contains-list-of ACCOUNT_ID :inside-prop "accountIds")
-(contains-list-of ORGANIZATION_ID :inside-prop "organizationIds")
+(contains-list-of ACCOUNT_ID :inside-prop "accountIds" :as "account_id" )  ; this is coming as list of array strings.
+(contains-list-of ORGANIZATION_ID :inside-prop "organizationIds" :as "organization_id")
 (contains-list-of SEGMENT_USER :inside-prop "segments")
 ))
 
@@ -194,21 +195,21 @@ name
 
 (entity ACCOUNT_ID
 (fields
-account_id :id :<="accountId")
+account_id :id )
 (relate (needs USER prop:"id")))
 
 (entity ORGANIZATION_ID 
 (fields 
-account_id :id :<="accountID"
+organization_id :id
 )
-(relate(needs USER.id prop:"id")))
+(relate(needs USER prop:"id")))
 
 (entity ADMIN
 (source 
 (http/get :url"/resources/admins/search")
 (extract-path ""))
 (fields
-id :id :<="id"
+id :id
 name:<="name"
 email:<="email"
 license_status:<="licenseStatus")
@@ -303,7 +304,7 @@ updated_at:<="updatedAt"
 (relate
 (linkes-to NOTES.external_id :prop "external_id")))
 
-(entity 
+(entity PROJECT
 (source 
 (http/get :url "/resources/projects")
 (extract-path("results"))
@@ -373,7 +374,7 @@ created_at:<="createdAt"
 )
 )
 
-(entity Project Templates
+(entity Project_Templates
 (api-docs-url "https://docs.vitally.io/pushing-data-to-vitally/rest-api/project-templates")
 (source
  (http/get :url "resources/projectTemplates")
